@@ -14,7 +14,11 @@ func newBencodeDecoder() *BencodeDecoder {
 
 func (bencodeDecoder BencodeDecoder) Decode(str string) any {
 	i := 0
-	return parseValue(str, &i)
+	res := parseValue(str, &i)
+	if i != len(str) {
+		log.Fatal("trailing data after valid bencode")
+	}
+	return res
 }
 
 func parseValue(s string, i *int) any {
