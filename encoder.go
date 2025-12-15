@@ -21,7 +21,6 @@ func (encoder *BencodeEncoder) Encode(data any) []byte {
 
 func encodeAny(data any) []byte {
 	result := []byte{}
-
 	switch dataType := data.(type) {
 	case string:
 		result = append(result, encodeString(data)...)
@@ -37,7 +36,6 @@ func encodeAny(data any) []byte {
 		fmt.Printf("%v", dataType)
 		log.Fatal("went wrong")
 	}
-
 	return result
 }
 
