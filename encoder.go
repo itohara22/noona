@@ -25,6 +25,8 @@ func encodeAny(data any) []byte {
 	switch dataType := data.(type) {
 	case string:
 		result = append(result, encodeString(data)...)
+	case []byte:
+		result = append(result, encodeBytes(data)...)
 	case map[string]any:
 		result = append(result, encodeDict(data)...)
 	case int:
@@ -37,6 +39,17 @@ func encodeAny(data any) []byte {
 	}
 
 	return result
+}
+
+func encodeBytes(data any) []byte {
+	dataBytes, ok := data.([]byte)
+	if !ok {
+		log.Fatal("encode byte broke")
+	}
+	length := strconv.Itoa(len(dataBytes))
+	res := []byte(length + ":")
+	res = append(res, dataBytes...)
+	return res
 }
 
 func encodeDict(data any) []byte {
