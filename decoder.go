@@ -12,7 +12,7 @@ func newBencodeDecoder() *BencodeDecoder {
 	return &BencodeDecoder{}
 }
 
-func (bencodeDecoder BencodeDecoder) Decode(str string) any {
+func (bencodeDecoder *BencodeDecoder) Decode(str []byte) any {
 	i := 0
 	res := parseValue(str, &i)
 	if i != len(str) {
@@ -21,7 +21,7 @@ func (bencodeDecoder BencodeDecoder) Decode(str string) any {
 	return res
 }
 
-func parseValue(s string, i *int) any {
+func parseValue(s []byte, i *int) any {
 	r := rune(s[*i])
 	if unicode.IsDigit(r) {
 		return decodeString(s, i)
@@ -37,7 +37,7 @@ func parseValue(s string, i *int) any {
 	return nil
 }
 
-func decodeList(s string, i *int) []any {
+func decodeList(s []byte, i *int) []any {
 	*i++
 	res := []any{}
 	for s[*i] != 'e' {
@@ -47,7 +47,7 @@ func decodeList(s string, i *int) []any {
 	return res
 }
 
-func decodeInteger(s string, i *int) int {
+func decodeInteger(s []byte, i *int) int {
 	res := ""
 	*i++ // skip i
 	for s[*i] != 'e' {
@@ -62,36 +62,32 @@ func decodeInteger(s string, i *int) int {
 	return resInt
 }
 
-func decodeString(s string, i *int) string {
-	res := ""
+func decodeString(s []byte, i *int) []byte {
 	lenghtString := ""
-
-	for s[*i] >= '0' && s[*i] <= '9' {
+	for s[*i] >= '0' && s[*i] <= '9' { // we will check for digits as string lenght can be multiple digits
 		lenghtString += string(s[*i])
 		*i++
 	}
-
 	if s[*i] != ':' {
 		log.Fatal("expected colon")
 	}
 	*i++ // skip colon
-
 	length, err := strconv.Atoi(lenghtString)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	strParsed := s[*i : *i+length]
-	res += strParsed
+	res := strParsed
 	*i += length // move i to the next digit
-	return res
+	return []byte(res)
 }
 
-func decodeDict(s string, i *int) map[string]any {
+func decodeDict(s []byte, i *int) map[string]any {
 	*i++ // skip d
 	m := make(map[string]any)
 
 	for s[*i] != 'e' {
-		key := decodeString(s, i)
+		key := string(decodeString(s, i))
 		val := parseValue(s, i)
 		m[key] = val
 	}
