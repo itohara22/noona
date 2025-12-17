@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha1"
 	"fmt"
 	"log"
 	"os"
@@ -22,14 +21,27 @@ func main() {
 		log.Fatal("tch tch tch")
 	}
 
-	en := NewBencodeEncoder()
-	enCodedData := en.Encode(resMap["info"])
-	// for _, v := range enCodedData {
-	// 	fmt.Print(v)
-	// }
+	trackerList := resMap["announce-list"].([]any)
+	for _, t := range trackerList {
+		tStrArr, ok := t.([]any)
+		if !ok {
+			log.Fatal("something wrong with annouce-list")
+		}
+		tBytes, ok := tStrArr[0].([]byte)
+		if !ok {
+			log.Fatal("something wrong with annouce-list[inside stuff]")
+		}
+		fmt.Println(string(tBytes))
+	}
 
-	hash := sha1.Sum(enCodedData)
-	fmt.Print(hash)
+	// en := NewBencodeEncoder()
+	// enCodedData := en.Encode(resMap["info"])
+	// // for _, v := range enCodedData {
+	// // 	fmt.Print(v)
+	// // }
+
+	// hash := sha1.Sum(enCodedData)
+	// fmt.Print(hash)
 
 	// info, ok := resMap["info"].(map[string]any)
 	// if !ok {
