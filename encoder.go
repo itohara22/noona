@@ -20,8 +20,9 @@ func (encoder *BencodeEncoder) Encode(data any) []byte {
 }
 
 func encodeAny(data any) []byte {
+
 	result := []byte{}
-	switch dataType := data.(type) {
+	switch dataType := data.(type) { // switch case according to data type
 	case string:
 		result = append(result, encodeString(data)...)
 	case []byte:

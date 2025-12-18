@@ -38,7 +38,7 @@ func parseValue(s []byte, i *int) any {
 }
 
 func decodeList(s []byte, i *int) []any {
-	*i++
+	*i++ // skip l
 	res := []any{}
 	for s[*i] != 'e' {
 		res = append(res, parseValue(s, i))
@@ -63,8 +63,10 @@ func decodeInteger(s []byte, i *int) int {
 }
 
 func decodeString(s []byte, i *int) []byte {
+	// strings can be byte strings so its best to return bytes
 	lenghtString := ""
-	for s[*i] >= '0' && s[*i] <= '9' { // we will check for digits as string lenght can be multiple digits
+	for s[*i] >= '0' && s[*i] <= '9' {
+		// we will check for digits as string lenght can be multiple digits
 		lenghtString += string(s[*i])
 		*i++
 	}
