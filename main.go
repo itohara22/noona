@@ -1,13 +1,23 @@
 package main
 
 import (
+	"crypto/sha1"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 )
 
 func main() {
-	fileData, err := os.ReadFile("torrent_files/a.torrent")
+	fileLocation := flag.String("f", "", "torrent file location")
+	flag.Parse()
+
+	if *fileLocation == "" {
+		log.Fatal("Provide torrent file location")
+	}
+	fmt.Println(*fileLocation)
+
+	fileData, err := os.ReadFile(*fileLocation)
 	if err != nil {
 		log.Fatal("cannot read file")
 		log.Fatal(err.Error())
@@ -34,21 +44,21 @@ func main() {
 		fmt.Println(string(tBytes))
 	}
 
-	// en := NewBencodeEncoder()
-	// enCodedData := en.Encode(resMap["info"])
-	// // for _, v := range enCodedData {
-	// // 	fmt.Print(v)
-	// // }
-
-	// hash := sha1.Sum(enCodedData)
-	// fmt.Print(hash)
-
-	// info, ok := resMap["info"].(map[string]any)
-	// if !ok {
-	// 	log.Fatal("tch tch info")
+	en := NewBencodeEncoder()
+	enCodedData := en.Encode(resMap["info"])
+	// for _, v := range enCodedData {
+	// 	fmt.Print(v)
 	// }
-	// pieces := info["pieces"]
-	// fmt.Println(pieces)
+
+	hash := sha1.Sum(enCodedData)
+	fmt.Print(hash)
+
+	info, ok := resMap["info"].(map[string]any)
+	if !ok {
+		log.Fatal("tch tch info")
+	}
+	pieces := info["pieces"]
+	fmt.Println(pieces)
 
 	//
 	// list := resMap["announce-list"].([]string) // we cannt assert to []string
