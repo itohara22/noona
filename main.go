@@ -46,9 +46,6 @@ func main() {
 
 	en := NewBencodeEncoder()
 	enCodedData := en.Encode(resMap["info"])
-	// for _, v := range enCodedData {
-	// 	fmt.Print(v)
-	// }
 
 	hash := sha1.Sum(enCodedData)
 	fmt.Print(hash)
@@ -60,22 +57,4 @@ func main() {
 	pieces := info["pieces"]
 	fmt.Println(pieces)
 
-	//
-	// list := resMap["announce-list"].([]string) // we cannt assert to []string
-	// list := resMap["announce-list"].([]any)
-	// for _, val := range list {
-	// 	fmt.Println(val)
-	// }
-
-	// val := map[string]any{
-	// 	"cow":  "moo",
-	// 	"spam": "eggs",
-	// }
-	// val := []any{
-	// 	"spam",
-	// 	"eggs",
-	// 	42,
-	// }
 }
-
-// dic := "d3:cow3:moo4:spam4:eggs3:numi42e4:listl4:test3:one3:twoe3:fooi99ee"
