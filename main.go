@@ -16,15 +16,20 @@ func main() {
 	bencodeDecoder := newBencodeDecoder()
 	res := bencodeDecoder.Decode(torrentFileBytesData)
 
-	resMap, ok := res.(map[string]any)
+	decodedDictionaryMap, ok := res.(map[string]any)
 	if !ok {
-		log.Fatal("tch tch tch")
+		log.Fatal("Corrupt torrent file")
 	}
 
 	en := NewBencodeEncoder()
-	enCodedData := en.Encode(resMap["info"])
 
-	hash := sha1.Sum(enCodedData)
+	if decodedDictionaryMap["info"] == nil {
+		log.Fatal("Corrupt torrent file")
+	}
+
+	encodedInfoData := en.Encode(decodedDictionaryMap["info"])
+
+	hash := sha1.Sum(encodedInfoData)
 	fmt.Print(hash)
 
 }
@@ -35,16 +40,3 @@ func main() {
 // }
 // pieces := info["pieces"]
 // fmt.Println(pieces)
-
-// trackerList := resMap["announce-list"].([]any)
-// for _, t := range trackerList {
-// 	tStrArr, ok := t.([]any)
-// 	if !ok {
-// 		log.Fatal("something wrong with annouce-list")
-// 	}
-// 	tBytes, ok := tStrArr[0].([]byte)
-// 	if !ok {
-// 		log.Fatal("something wrong with annouce-list[inside stuff]")
-// 	}
-// 	fmt.Println(string(tBytes))
-// }
