@@ -27,10 +27,18 @@ func main() {
 		log.Fatal("Corrupt torrent file")
 	}
 
-	encodedInfoData := en.Encode(decodedDictionaryMap["info"])
+	infoDictionary, ok := decodedDictionaryMap["info"].(map[string]any)
+	if !ok {
+		log.Fatal("Invalid info dict. Broken torrent")
+	}
 
+	encodedInfoData := en.Encode(infoDictionary)
 	hash := sha1.Sum(encodedInfoData)
-	fmt.Print(hash)
+
+	// fmt.Println(infoDictionary)
+	fmt.Println(GetSize(infoDictionary))
+	fmt.Println(hash)
+	fmt.Println(GetTrackers(decodedDictionaryMap))
 
 }
 
