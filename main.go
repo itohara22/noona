@@ -38,7 +38,11 @@ func main() {
 	// fmt.Println(infoDictionary)
 	fmt.Println(GetSize(infoDictionary))
 	fmt.Println(hash)
-	fmt.Println(GetTrackers(decodedDictionaryMap))
+	trackers :=  GetTrackers(decodedDictionaryMap)
+
+	for _,t := range GetHttpTracker(trackers){
+		fmt.Println(t)
+	}
 
 }
 
