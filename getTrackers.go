@@ -6,7 +6,12 @@ import (
 
 func GetTrackers(decodedDict map[string]any) []string {
 	trackers := []string{}
-	trackerList := decodedDict["announce-list"].([]any)
+	trackerList,ok := decodedDict["announce-list"].([]any)
+
+	if !ok {
+		log.Fatal("annouce list broken")
+	}
+
 	for _, t := range trackerList {
 		tStrArr, ok := t.([]any)
 		if !ok {

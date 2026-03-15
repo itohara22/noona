@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"log"
 	"strconv"
 	"unicode"
@@ -37,63 +38,70 @@ func parseValue(s []byte, i *int) any {
 	return nil
 }
 
-func decodeList(s []byte, i *int) []any {
-	*i++ // skip l
+
+func decodeList(byteStr []byte, pos *int) []any {
+	*pos++ // skip l
 	res := []any{}
-	for s[*i] != 'e' {
-		res = append(res, parseValue(s, i))
+
+	for byteStr[*pos] != 'e' {
+		res = append(res, parseValue(byteStr, pos))
 	}
-	*i++ // skip the last e
+	*pos++ // skip the last e
 	return res
 }
 
-func decodeInteger(s []byte, i *int) int {
-	res := ""
-	*i++ // skip i
-	for s[*i] != 'e' {
-		res += string(s[*i])
-		*i++
+
+func decodeInteger(byteStr []byte, pos *int) int {
+	var res strings.Builder
+	*pos++ // skip i
+
+	for byteStr[*pos] != 'e' {
+		res.WriteString(string(byteStr[*pos]))
+		*pos++
 	}
-	*i++ // move from last e
-	resInt, err := strconv.Atoi(res)
+	*pos++ // move from last e
+	resInt, err := strconv.Atoi(res.String())
 	if err != nil {
 		log.Fatal("decode integer invalid bencode")
 	}
 	return resInt
 }
 
-func decodeString(s []byte, i *int) []byte {
+
+func decodeString(byteStr []byte, pos *int) []byte {
 	// strings can be byte strings so its best to return bytes
-	lenghtString := ""
-	for s[*i] >= '0' && s[*i] <= '9' {
+	var lenghtString strings.Builder
+
+	for byteStr[*pos] >= '0' && byteStr[*pos] <= '9' { // comapring ascii values
 		// we will check for digits as string lenght can be multiple digits
-		lenghtString += string(s[*i])
-		*i++
+		lenghtString.WriteString(string(byteStr[*pos]))
+		*pos++
 	}
-	if s[*i] != ':' {
+
+	if byteStr[*pos] != ':' {
 		log.Fatal("expected colon")
 	}
-	*i++ // skip colon
-	length, err := strconv.Atoi(lenghtString)
+	*pos++ // skip colon
+	length, err := strconv.Atoi(lenghtString.String())
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	strParsed := s[*i : *i+length]
+	strParsed := byteStr[*pos : *pos+length]
 	res := strParsed
-	*i += length // move i to the next digit
+	*pos += length // move i to the next digit
 	return []byte(res)
 }
 
-func decodeDict(s []byte, i *int) map[string]any {
-	*i++ // skip d
+func decodeDict(byteStr []byte, pos *int) map[string]any {
+	*pos++ // skip d
 	m := make(map[string]any)
 
-	for s[*i] != 'e' {
-		key := string(decodeString(s, i))
-		val := parseValue(s, i)
+	for byteStr[*pos] != 'e' {
+		key := string(decodeString(byteStr, pos))
+		val := parseValue(byteStr, pos)
 		m[key] = val
 	}
 
-	*i++ // skip the last e
+	*pos++ // skip the last e
 	return m
 }
