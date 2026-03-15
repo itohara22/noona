@@ -3,10 +3,7 @@ package main
 import (
 	"crypto/sha1"
 	"flag"
-	"fmt"
-	"io"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -48,23 +45,8 @@ func main() {
 
 	}
 
-	url := GenerateAnnounceUrl(urlCompoents)
+	GenerateAnnounceUrl(urlCompoents)
 
-
-	resp,err := http.Get(url)
-
-	if err!=nil{
-		log.Fatal(err.Error())
-	}
-
-	if resp.StatusCode != 200 {
-		log.Fatal("tracker request failed")
-	}
-
-	b,err := io.ReadAll( resp.Body)
-	if err!=nil{
-		log.Fatal(err.Error())
-	}
-	fmt.Println(string(b))
+	// TODO: need to add functionality for udp urls
 
 }
