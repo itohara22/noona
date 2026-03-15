@@ -35,10 +35,10 @@ func main() {
 	hash := sha1.Sum(encodedInfoData)
 	torrentSize := GetSize(infoDictionary)
 	trackers :=  GetTrackers(decodedDictionaryMap)
-	httpTrackers :=  GetHttpTracker(trackers)
+	// httpTrackers :=  GetHttpTracker(trackers)
 
 	urlCompoents := UrlCompoents{
-		tracker: httpTrackers[0],
+		tracker: trackers[0],
 		infoHash: hash,
 		port: 6888,
 		left: torrentSize ,
@@ -49,4 +49,5 @@ func main() {
 
 	// TODO: need to add functionality for udp urls
 
+	UdpRequest(urlCompoents)
 }
