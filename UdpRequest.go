@@ -2,16 +2,15 @@ package main
 
 import (
 	"encoding/binary"
-	crand "crypto/rand"
-	"fmt"
 	"log"
 	"math/rand"
 	"net"
+	"strconv"
 	"strings"
 )
 
 
-func UdpRequest(urlComponents UrlCompoents){
+func UdpRequest(urlComponents UrlCompoents) []string {
 
 	a := strings.Split(urlComponents.tracker, "/")
 	udpAddr, err := net.ResolveUDPAddr("udp",a[2])
@@ -55,15 +54,17 @@ func UdpRequest(urlComponents UrlCompoents){
 
 	conn.Write(buf)
 
+	ips := []string{}
 	resp := make([]byte, 1500)
 	n, _ := conn.Read(resp)
 	peerBytes := resp[20:n]
 	for i := 0; i < len(peerBytes); i += 6 {
 	    ip := net.IP(peerBytes[i : i+4])
 	    port := binary.BigEndian.Uint16(peerBytes[i+4 : i+6])
-	    fmt.Println(ip, port)
+		ips = append(ips,ip.String()+":"+ strconv.Itoa(int(port)))
 	}
 
+	return ips
 }
 
 func generateUdpAnnounceRequestData(connectionId uint64, urlComp UrlCompoents)[]byte{
@@ -84,11 +85,6 @@ func generateUdpAnnounceRequestData(connectionId uint64, urlComp UrlCompoents)[]
 // 96      16-bit integer  port
 // 98
 
-	var peerId [20]byte
-	_,err := crand.Read(peerId[:])
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 	transactionId := rand.Uint32()
 	buf := make([]byte,98)
 
@@ -97,7 +93,7 @@ func generateUdpAnnounceRequestData(connectionId uint64, urlComp UrlCompoents)[]
 	binary.BigEndian.PutUint32(buf[12:16],transactionId)
 
 	copy(buf[16:36], urlComp.infoHash[:])
-	copy(buf[36:56], peerId[:])
+	copy(buf[36:56], urlComp.peerId[:])
 
 	binary.BigEndian.PutUint64(buf[56:64],0)
 	binary.BigEndian.PutUint64(buf[64:72],uint64(urlComp.left))

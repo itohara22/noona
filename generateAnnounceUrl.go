@@ -12,6 +12,7 @@ type UrlCompoents struct {
 	infoHash [20]byte;
 	port int;
 	left int;
+	peerId [20]byte;
 }
 
 func GenerateAnnounceUrl(compoents UrlCompoents) string {

@@ -2,7 +2,10 @@ package main
 
 import (
 	"crypto/sha1"
+	"encoding/binary"
 	"flag"
+	"fmt"
+	"io"
 	"log"
 )
 
@@ -36,18 +39,56 @@ func main() {
 	torrentSize := GetSize(infoDictionary)
 	trackers :=  GetTrackers(decodedDictionaryMap)
 	// httpTrackers :=  GetHttpTracker(trackers)
+	udpTrackers := GetUdpTracker(trackers)
 
-	urlCompoents := UrlCompoents{
-		tracker: trackers[0],
-		infoHash: hash,
-		port: 6888,
-		left: torrentSize ,
 
+	conn,err := GetTcpConn(udpTrackers, hash, torrentSize)
+	if err !=nil{
+		log.Fatal("tcp connections failed")
+	}
+	defer conn.Close()
+
+	// send interested after handshake
+	interestedMsg := make([]byte,5)
+	binary.BigEndian.PutUint32(interestedMsg[0:4],1)
+	interestedMsg[4] = 2
+
+	_, err = conn.Write(interestedMsg)
+	if err != nil {
+			log.Fatal(err.Error())
 	}
 
-	GenerateAnnounceUrl(urlCompoents)
+	fmt.Println("sent interested")
 
-	// TODO: need to add functionality for udp urls
+	for {
+			lenBuf := make([]byte, 4)
 
-	UdpRequest(urlCompoents)
+			_, err = io.ReadFull(conn, lenBuf)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
+			length := binary.BigEndian.Uint32(lenBuf)
+
+			if length == 0 {
+				fmt.Println("0 length keep-alive")
+				continue
+			}
+
+			msg := make([]byte, length)
+
+			_, err = io.ReadFull(conn, msg)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+
+			msgID := msg[0]
+			payload := msg[1:]
+
+			if msgID != 1 {
+				fmt.Println(string(payload))
+				log.Fatal("connection not unchocked by peer")
+			}
+	}
+
 }
