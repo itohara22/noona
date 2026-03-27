@@ -34,13 +34,17 @@ func main() {
 		log.Fatal("Invalid info dict. Broken torrent")
 	}
 
+ 	pieceLength,ok := infoDictionary["piece length"].(int)
+
+ 	if !ok{
+ 		log.Fatal("piece length")
+    }
+
 	encodedInfoData := en.Encode(infoDictionary)
 	hash := sha1.Sum(encodedInfoData)
 	torrentSize := GetSize(infoDictionary)
 	trackers :=  GetTrackers(decodedDictionaryMap)
-	// httpTrackers :=  GetHttpTracker(trackers)
 	udpTrackers := GetUdpTracker(trackers)
-
 
 	conn,err := GetTcpConn(udpTrackers, hash, torrentSize)
 	if err !=nil{
